@@ -14,11 +14,11 @@ on:
       DEVICE_TREE_URL:
         description: 'DEVICE_TREE_URL'
         required: true
-        default: 'https://github.com/AzzyC/ofox_device_peridot'
+        default: 'https://github.com/AzzyC/ofox_device_xiaomi_peridot'
       DEVICE_TREE_BRANCH:
         description: 'DEVICE_TREE_BRANCH'
         required: true
-        default: 'main'
+        default: 'twrp-14.1'
       DEVICE_PATH:
         description: 'DEVICE_PATH'
         required: true
