@@ -29,8 +29,21 @@ jobs:
     - name: Cleanup
       uses: rokibhasansagar/slimhub_actions@main
 
+    - name: Create Telegram sender script
+      run: |
+        cat <<'EOF' > /tmp/send_msg.sh
+        #!/bin/bash
+        MSG="$1"
+        curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+          -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+          -d text="$MSG" \
+          -d parse_mode="Markdown"
+        EOF
+        chmod +x /tmp/send_msg.sh
+
     - name: Initialize workspace
       run: |
+        /tmp/send_msg.sh "🚀 *Starting OrangeFox build* for \`${{ env.DEVICE_NAME }}\` (\`${{ env.MANIFEST_BRANCH }}\`)"
         mkdir workspace
         cd workspace
         echo "workspace-folder=$(pwd)" >> $GITHUB_OUTPUT
@@ -38,6 +51,7 @@ jobs:
 
     - name: Prepare the build environment
       run: |
+        /tmp/send_msg.sh "🧩 Preparing build environment..."
         sudo apt update && sudo apt upgrade -y
         DEBIAN_FRONTEND=noninteractive sudo apt install -yq \
             linux-modules-extra-$(uname -r) \
@@ -57,6 +71,7 @@ jobs:
 
     - name: Sync OrangeFox sources and minimal manifest
       run: |
+        /tmp/send_msg.sh "🌐 Syncing OrangeFox sources..."
         cd ${{ steps.pwd.outputs.workspace-folder }}
         git clone ${{ env.SYNC_URL }}
         cd sync
@@ -65,6 +80,7 @@ jobs:
 
     - name: Clone device tree
       run: |
+        /tmp/send_msg.sh "🌲 Cloning device tree for \`${{ env.DEVICE_NAME }}\`..."
         cd ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ env.MANIFEST_BRANCH }}
         git clone ${{ env.DEVICE_TREE_URL }} -b ${{ env.DEVICE_TREE_BRANCH }} ./${{ env.DEVICE_PATH }}
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
@@ -76,17 +92,20 @@ jobs:
 
     - name: Building recovery
       run: |
+        /tmp/send_msg.sh "⚙️ Starting build for \`${{ env.DEVICE_NAME }}\`..."
         cd ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ env.MANIFEST_BRANCH }}
         set +e
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
         set -e
         lunch ${{ env.MAKEFILE_NAME }}-eng && make clean && mka adbd ${{ env.BUILD_TARGET }}image -j$(nproc --all)
+        /tmp/send_msg.sh "✅ Build completed successfully for \`${{ env.DEVICE_NAME }}\`"
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
       continue-on-error: true
 
     - name: Check the output directory before uploading
       run: |
+        /tmp/send_msg.sh "🧾 Checking output directory..."
         ls -al ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ env.MANIFEST_BRANCH }}/out/target/product/
         echo
         ls -al ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ env.MANIFEST_BRANCH }}/out/target/product/${{ env.DEVICE_NAME }}/
@@ -105,3 +124,8 @@ jobs:
           Target: ${{ env.BUILD_TARGET }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Notify Release
+      run: |
+        RELEASE_URL="https://github.com/${{ github.repository }}/releases/latest"
+        /tmp/send_msg.sh "📦 *Build complete!* [Download OrangeFox-R11.3-Unofficial-peridot.zip]($RELEASE_URL)"
