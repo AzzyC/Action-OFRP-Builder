@@ -92,9 +92,11 @@ jobs:
       id: devtree_commit
       run: |
         cd ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ env.MANIFEST_BRANCH }}/${{ env.DEVICE_PATH }}
-        LATEST_COMMIT=$(git rev-parse HEAD)
+        LATEST_COMMIT=$(git rev-parse --short=7 HEAD)
         echo "LATEST_COMMIT=$LATEST_COMMIT" >> $GITHUB_OUTPUT
         echo "Latest device tree commit: $LATEST_COMMIT"
+        /tmp/send_msg.sh "🌲 Device tree: [${LATEST_COMMIT}](${{ env.DEVICE_TREE_URL }}/tree/$LATEST_COMMIT)"
+      working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
     - name: Set Swap Space
       uses: pierotofy/set-swap-space@master
