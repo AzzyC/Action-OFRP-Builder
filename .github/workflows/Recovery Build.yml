@@ -89,9 +89,10 @@ jobs:
       id: devtree_commit
       run: |
         cd ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ env.MANIFEST_BRANCH }}/${{ env.DEVICE_PATH }}
-        LATEST_COMMIT=$(git rev-parse HEAD)
+        LATEST_COMMIT=$(git rev-parse --short=7 HEAD)
         echo "LATEST_COMMIT=$LATEST_COMMIT" >> $GITHUB_OUTPUT
-        echo "Latest device tree commit: $LATEST_COMMIT"
+        DEVICE_TREE_BROWSE_URL="${{ env.DEVICE_TREE_URL }}/tree/$LATEST_COMMIT"
+        /tmp/send_msg.sh "🌲 Device tree: $DEVICE_TREE_BROWSE_URL"
 
     - name: Set Swap Space
       uses: pierotofy/set-swap-space@master
@@ -133,7 +134,7 @@ jobs:
           Manifest: ${{ env.MANIFEST_BRANCH }}
           Device: ${{ env.DEVICE_NAME }}
           Target: ${{ env.BUILD_TARGET }}
-          Device tree commit: [${{ steps.devtree_commit.outputs.LATEST_COMMIT }}](${{ env.DEVICE_TREE_URL }}/tree/${{ steps.devtree_commit.outputs.LATEST_COMMIT }})
+          Device tree: [${{ steps.devtree_commit.outputs.LATEST_COMMIT }}](${{ env.DEVICE_TREE_URL }}/tree/${{ steps.devtree_commit.outputs.LATEST_COMMIT }})
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -142,4 +143,4 @@ jobs:
       run: |
         RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/${{ github.run_id }}"
         DEVICE_TREE_BROWSE_URL="${{ env.DEVICE_TREE_URL }}/tree/${{ steps.devtree_commit.outputs.LATEST_COMMIT }}"
-        /tmp/send_msg.sh "📦 *Build complete!*\n🔗 [Download]($RELEASE_URL)\n🌲 Device tree commit: [${{ steps.devtree_commit.outputs.LATEST_COMMIT }}]($DEVICE_TREE_BROWSE_URL)"
+        /tmp/send_msg.sh "📦 *Build complete!*\n🔗 [Download]($RELEASE_URL)\n🌲 Device tree: [${{ steps.devtree_commit.outputs.LATEST_COMMIT }}]($DEVICE_TREE_BROWSE_URL)"
