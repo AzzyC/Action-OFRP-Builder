@@ -110,7 +110,7 @@ jobs:
     - name: Notify Build Failure
       if: failure()
       run: |
-        /tmp/send_msg.sh "❌ Build failed for `${{ env.DEVICE_NAME }}` (branch `${{ env.MANIFEST_BRANCH }}`)\n🔗 [View Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+        /tmp/send_msg.sh "❌ Build failed for \`${{ env.DEVICE_NAME }}\` (\`${{ env.MANIFEST_BRANCH }}\`)\n🔗 [View Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
         exit 1
 
     - name: Check the output directory before uploading
