@@ -2,6 +2,15 @@ name: Recovery Build
 
 on:
   workflow_dispatch:
+    inputs:
+      device_tree_branch:
+        description: "Select device tree branch"
+        required: true
+        default: fox_14.1
+        type: choice
+        options:
+          - fox_14.1
+          - auto-dfe
 
 jobs:
   build:
@@ -11,9 +20,9 @@ jobs:
       contents: write
     env:
       SYNC_URL: https://gitlab.com/OrangeFox/sync.git
-      MANIFEST_BRANCH: 12.1
+      MANIFEST_BRANCH: 14.1
       DEVICE_TREE_URL: https://github.com/AzzyC/ofox_device_xiaomi_peridot
-      DEVICE_TREE_BRANCH: main
+      DEVICE_TREE_BRANCH: ${{ inputs.device_tree_branch }}
       DEVICE_PATH: device/xiaomi/peridot
       DEVICE_NAME: peridot
       MAKEFILE_NAME: twrp_peridot
@@ -103,7 +112,7 @@ jobs:
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
         set -e
-        lunch ${{ env.MAKEFILE_NAME }}-eng && make clean && mka adbd ${{ env.BUILD_TARGET }}image -j$(nproc --all)
+        lunch ${{ env.MAKEFILE_NAME }}-ap2a-eng && make clean && mka adbd ${{ env.BUILD_TARGET }}image -j$(nproc --all)
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
       continue-on-error: true
 
