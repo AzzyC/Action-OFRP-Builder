@@ -3,6 +3,15 @@ name: Recovery Build
 on:
   workflow_dispatch:
     inputs:
+      device_tree_url:
+        description: "Select device tree repository"
+        required: true
+        type: choice
+        default: https://github.com/AzzyC/ofox_device_xiaomi_peridot
+        options:
+          - https://github.com/AzzyC/ofox_device_xiaomi_peridot
+          - https://gitlab.com/OrangeFox/device/peridot_new
+
       device_tree_branch:
         description: "Select device tree branch"
         required: true
@@ -18,10 +27,11 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+
     env:
       SYNC_URL: https://gitlab.com/OrangeFox/sync.git
       MANIFEST_BRANCH: 14.1
-      DEVICE_TREE_URL: https://github.com/AzzyC/ofox_device_xiaomi_peridot
+      DEVICE_TREE_URL: ${{ inputs.device_tree_url }}
       DEVICE_TREE_BRANCH: ${{ inputs.device_tree_branch }}
       DEVICE_PATH: device/xiaomi/peridot
       DEVICE_NAME: peridot
