@@ -149,6 +149,7 @@ jobs:
         set +e
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
+        export OF_OPTIONS_LIST_NUM=8
         set -e
         lunch ${{ env.MAKEFILE_NAME }}-ap2a-eng && make clean && mka adbd ${{ env.BUILD_TARGET }}image -j$(nproc --all)
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
