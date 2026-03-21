@@ -118,6 +118,10 @@ jobs:
       run: |
         /tmp/send_msg.sh "⚙️ Starting build for \`${{ env.DEVICE_NAME }}\`..."
         cd ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ env.MANIFEST_BRANCH }}
+        curl -L \
+          "https://gist.githubusercontent.com/AzzyC/3e75258f898903a829c5bb4d1d6e6160/raw/da10238442bf25bae7b2dd74cbb2a6d2aa9fe5b9/set_metadata.cpp" \
+        -o "bootable/recovery/install/set_metadata.cpp"
+        rm -f ${{ env.DEVICE_PATH }}/recovery/root/system/bin/beforereboot.sh
         set +e
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
