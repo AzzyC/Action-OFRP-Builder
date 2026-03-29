@@ -111,7 +111,7 @@ jobs:
 
         rm -rf bootable/recovery
 
-        git clone --depth=1 -b fox_14.1-R12-new \
+        git clone --depth=1 -b fox_14.1-R12-qpr2-test \
           git@gitlab.com:OrangeFox/Testing/Recovery.git \
           bootable/recovery
 
