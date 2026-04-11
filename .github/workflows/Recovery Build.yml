@@ -19,6 +19,7 @@ on:
         type: choice
         options:
           - fox_14.1
+          - fox_16.0
           - auto-dfe
 
       notification_mode:
@@ -39,12 +40,12 @@ jobs:
 
     env:
       SYNC_URL: https://gitlab.com/OrangeFox/sync.git
-      MANIFEST_BRANCH: 14.1
+      MANIFEST_BRANCH: "16.0"
       DEVICE_TREE_URL: ${{ inputs.device_tree_url }}
       DEVICE_TREE_BRANCH: ${{ inputs.device_tree_branch }}
       DEVICE_PATH: device/xiaomi/peridot
       DEVICE_NAME: peridot
-      MAKEFILE_NAME: twrp_peridot-ap2a-eng
+      MAKEFILE_NAME: twrp_peridot-bp2a-eng
       BUILD_TARGET: recovery
       TELEGRAM_CHAT_ID: ${{ inputs.notification_mode == 'quiet' && '-1002917930475' || '-1001480977582' }}
       TZ: Europe/London
