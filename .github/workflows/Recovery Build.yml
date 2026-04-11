@@ -15,11 +15,10 @@ on:
       device_tree_branch:
         description: "Select device tree branch"
         required: true
-        default: fox_14.1
+        default: fox_16.0
         type: choice
         options:
-          - fox_14.1
-          - auto-dfe
+          - fox_16.0
 
 jobs:
   build:
@@ -29,8 +28,8 @@ jobs:
       contents: write
 
     env:
-      SYNC_URL: https://gitlab.com/OrangeFox/sync.git
-      MANIFEST_BRANCH: 14.1
+      SYNC_URL: https://github.com/OrangeFox16/sync.git
+      MANIFEST_BRANCH: "16.0"
       DEVICE_TREE_URL: ${{ inputs.device_tree_url }}
       DEVICE_TREE_BRANCH: ${{ inputs.device_tree_branch }}
       DEVICE_PATH: device/xiaomi/peridot
