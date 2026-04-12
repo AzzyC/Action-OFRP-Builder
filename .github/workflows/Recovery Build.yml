@@ -113,6 +113,19 @@ jobs:
       with:
         swap-size-gb: 12
 
+    - name: Show system resources
+      run: |
+        /tmp/send_msg.sh "📊 Checking runner resources..."
+        echo "CPU cores:"
+        nproc
+        echo
+        echo "Memory:"
+        free -h
+        echo
+        echo "Disk:"
+        df -h
+      working-directory: ${{ steps.pwd.outputs.workspace-folder }}
+
     - name: Building recovery
       run: |
         /tmp/send_msg.sh "⚙️ Starting build for \`${{ env.DEVICE_NAME }}\`..."
@@ -121,7 +134,8 @@ jobs:
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
         set -e
-        lunch ${{ env.MAKEFILE_NAME }}-ap2a-eng && make clean && mka adbd ${{ env.BUILD_TARGET }}image -j$(nproc --all)
+        lunch ${{ env.MAKEFILE_NAME }}-ap2a-eng
+        mka adbd ${{ env.BUILD_TARGET }}image -j4
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
       continue-on-error: true
 
