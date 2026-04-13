@@ -111,7 +111,7 @@ jobs:
     - name: Set Swap Space
       uses: pierotofy/set-swap-space@master
       with:
-        swap-size-gb: 12
+        swap-size-gb: 18
 
     - name: Show system resources
       run: |
@@ -135,7 +135,7 @@ jobs:
         export ALLOW_MISSING_DEPENDENCIES=true
         set -e
         lunch ${{ env.MAKEFILE_NAME }}-ap2a-eng
-        mka adbd ${{ env.BUILD_TARGET }}image -j4
+        mka adbd ${{ env.BUILD_TARGET }}image -j2
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
       continue-on-error: true
 
