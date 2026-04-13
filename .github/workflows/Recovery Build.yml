@@ -134,7 +134,7 @@ jobs:
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
         set -e
-        lunch ${{ env.MAKEFILE_NAME }}-ap2a-eng
+        lunch ${{ env.MAKEFILE_NAME }}-bp2a-eng
         mka adbd ${{ env.BUILD_TARGET }}image -j2
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
       continue-on-error: true
