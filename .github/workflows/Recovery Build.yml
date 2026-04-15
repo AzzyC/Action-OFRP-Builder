@@ -145,6 +145,19 @@ jobs:
         /tmp/send_msg.sh "❌ Build failed for \`${{ env.DEVICE_NAME }}\` (\`${{ env.MANIFEST_BRANCH }}\`)\n🔗 [View Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
         exit 1
 
+    - name: Show system resources post-build
+      run: |
+        /tmp/send_msg.sh "📊 Checking runner resources..."
+        echo "CPU cores:"
+        nproc
+        echo
+        echo "Memory:"
+        free -h
+        echo
+        echo "Disk:"
+        df -h
+      working-directory: ${{ steps.pwd.outputs.workspace-folder }}
+
     - name: Check the output directory before uploading
       run: |
         /tmp/send_msg.sh "🧾 Checking output directory..."
