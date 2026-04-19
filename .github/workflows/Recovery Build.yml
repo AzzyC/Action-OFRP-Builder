@@ -43,6 +43,17 @@ jobs:
     - name: Cleanup
       uses: rokibhasansagar/slimhub_actions@main
 
+    # Setup SSH for GitLab
+    - name: Setup SSH Keys
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Add GitLab to known hosts
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+
     - name: Create Telegram sender script
       run: |
         cat <<'EOF' > /tmp/send_msg.sh
@@ -89,6 +100,26 @@ jobs:
         git clone --depth=1 ${{ env.SYNC_URL }}
         cd sync
         ./orangefox_sync.sh --branch ${{ env.MANIFEST_BRANCH }} --path ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ env.MANIFEST_BRANCH }}
+      working-directory: ${{ steps.pwd.outputs.workspace-folder }}
+
+    - name: Replace bootable/recovery with Testing/Recovery
+      run: |
+        /tmp/send_msg.sh "🔁 Replacing bootable/recovery..."
+
+        cd ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ env.MANIFEST_BRANCH }}
+
+        rm -rf bootable/recovery
+
+        git clone --depth=1 -b fox_16.0-R12-wlan-test \
+          git@gitlab.com:OrangeFox/Testing/Recovery.git \
+          bootable/recovery
+
+        rm -rf vendor/recovery
+
+        git clone --depth=1 -b fox_16.0-R12 \
+          git@gitlab.com:OrangeFox/vendor/recovery.git \
+          vendor/recovery
+
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
     - name: Clone device tree
