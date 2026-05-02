@@ -149,6 +149,8 @@ jobs:
         set +e
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
+        export FOX_BUILD_TYPE="Stable"
+        unset FOX_MAINTAINER_PATCH_VERSION
         set -e
         lunch ${{ env.MAKEFILE_NAME }}-ap2a-eng && make clean && mka adbd ${{ env.BUILD_TARGET }}image -j$(nproc --all)
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
