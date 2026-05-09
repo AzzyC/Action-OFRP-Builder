@@ -36,7 +36,7 @@ jobs:
       DEVICE_TREE_BRANCH: ${{ inputs.device_tree_branch }}
       DEVICE_PATH: device/xiaomi/peridot
       DEVICE_NAME: peridot
-      MAKEFILE_NAME: twrp_peridot
+      MAKEFILE_NAME: twrp_peridot-ap2a-eng
       BUILD_TARGET: recovery
 
       # Maximise workflow / instance to GitHub's 6 hour limit
@@ -131,7 +131,7 @@ jobs:
         export ALLOW_MISSING_DEPENDENCIES=true
         set -e
 
-        lunch ${{ env.MAKEFILE_NAME }}-ap2a-eng
+        lunch ${{ env.MAKEFILE_NAME }}
 
         if ! mka adbd ${{ env.BUILD_TARGET }}image -j$(nproc --all); then
           /tmp/send_msg.sh "❌ Build failed for \`${{ env.DEVICE_NAME }}\` (\`${{ env.MANIFEST_BRANCH }}\`)\n🔗 [View Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
@@ -235,7 +235,7 @@ jobs:
           export ALLOW_MISSING_DEPENDENCIES=true
           set -e
 
-          lunch ${{ env.MAKEFILE_NAME }}-ap2a-eng
+          lunch ${{ env.MAKEFILE_NAME }}
 
           /tmp/send_msg.sh "🔨 Dirty build #${BUILD_COUNT} compilation started..."
 
