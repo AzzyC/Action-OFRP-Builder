@@ -103,6 +103,18 @@ jobs:
         ./orangefox_sync.sh --branch ${{ env.MANIFEST_BRANCH }} --path ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ env.MANIFEST_BRANCH }}
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
+    - name: Replace bootable/recovery with Testing/Recovery
+      run: |
+        /tmp/send_msg.sh "🔁 Replacing bootable/recovery..."
+
+        cd ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ env.MANIFEST_BRANCH }}
+
+        rm -rf bootable/recovery
+
+        git clone --depth=1 -b fox_14.1 https://gitlab.com/AzzyC/Recovery.git bootable/recovery
+
+      working-directory: ${{ steps.pwd.outputs.workspace-folder }}
+
     - name: Clone device tree
       run: |
         /tmp/send_msg.sh "🌲 Cloning device tree for \`${{ env.DEVICE_NAME }}\`..."
