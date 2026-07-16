@@ -158,11 +158,6 @@ jobs:
         df -h
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
-    - name: Check the output directory before uploading
-      run: |
-        /tmp/send_msg.sh "🧾 Checking output directory..."
-        ls ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ env.MANIFEST_BRANCH }}/out/target/product/${{ env.DEVICE_NAME }}/
-
     - name: Upload to Release
       uses: softprops/action-gh-release@v2
       with:
