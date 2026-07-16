@@ -35,7 +35,7 @@ jobs:
       DEVICE_TREE_BRANCH: ${{ inputs.device_tree_branch }}
       DEVICE_PATH: device/xiaomi/peridot
       DEVICE_NAME: peridot
-      MAKEFILE_NAME: twrp_peridot
+      MAKEFILE_NAME: twrp_peridot-ap2a-eng
       BUILD_TARGET: recovery
 
     steps:
@@ -124,7 +124,7 @@ jobs:
         export ALLOW_MISSING_DEPENDENCIES=true
         set -e
 
-        lunch ${{ env.MAKEFILE_NAME }}-ap2a-eng
+        lunch ${{ env.MAKEFILE_NAME }}
 
         if ! mka adbd ${{ env.BUILD_TARGET }}image -j$(nproc --all); then
           /tmp/send_msg.sh "❌ Build failed for \`${{ env.DEVICE_NAME }}\` (\`${{ env.MANIFEST_BRANCH }}\`)\n🔗 [View Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
