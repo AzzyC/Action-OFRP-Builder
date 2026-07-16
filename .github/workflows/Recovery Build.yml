@@ -140,7 +140,7 @@ jobs:
         lunch ${{ env.MAKEFILE_NAME }}
 
         if ! mka adbd ${{ env.BUILD_TARGET }}image -j$(nproc --all); then
-          /tmp/send_msg.sh "❌ Build failed for \`${{ env.DEVICE_NAME }}\` (\`${{ env.MANIFEST_BRANCH }}\`)\n🔗 [View Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+          /tmp/send_msg.sh "❌ Build failed for \`${{ env.DEVICE_NAME }}\` (\`${{ env.DEVICE_TREE_BRANCH }}\`)\n🔗 [View Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
           exit 1
         fi
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
@@ -157,11 +157,6 @@ jobs:
         echo "Disk:"
         df -h
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
-
-    - name: Check the output directory before uploading
-      run: |
-        /tmp/send_msg.sh "🧾 Checking output directory..."
-        ls ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ env.MANIFEST_BRANCH }}/out/target/product/${{ env.DEVICE_NAME }}/
 
     - name: Upload to Release
       uses: softprops/action-gh-release@v2
