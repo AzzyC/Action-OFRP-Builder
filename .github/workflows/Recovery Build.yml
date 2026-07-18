@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       device_tree_url:
-        description: "Select device tree repository"
+        description: "Select Device Tree repository"
         required: true
         type: choice
         default: https://github.com/AzzyC/ofox_device_xiaomi_peridot
@@ -13,13 +13,22 @@ on:
           - https://gitlab.com/OrangeFox/device/peridot_new
 
       device_tree_branch:
-        description: "Select device tree branch"
+        description: "Select Device Tree branch"
         required: true
         default: fox_14.1
         type: choice
         options:
           - fox_14.1
           - auto-dfe
+
+      notification_mode:
+        description: "Select Telegram notification mode"
+        required: true
+        type: choice
+        default: quiet
+        options:
+          - quiet
+          - loud
 
 jobs:
   build:
@@ -37,6 +46,7 @@ jobs:
       DEVICE_NAME: peridot
       MAKEFILE_NAME: twrp_peridot-ap2a-eng
       BUILD_TARGET: recovery
+      TELEGRAM_CHAT_ID: ${{ inputs.notification_mode == 'quiet' && '-1002917930475' || '-1001480977582' }}
 
     steps:
 
@@ -51,7 +61,7 @@ jobs:
         MSG="$(printf "$1")"
         curl -s --fail \
           -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-          -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+          -d chat_id="${{ env.TELEGRAM_CHAT_ID }}" \
           -d text="$MSG" \
           -d parse_mode="Markdown" \
           -d disable_web_page_preview=true \
