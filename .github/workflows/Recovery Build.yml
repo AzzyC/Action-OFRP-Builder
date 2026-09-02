@@ -47,6 +47,7 @@ jobs:
       MAKEFILE_NAME: twrp_peridot-ap2a-eng
       BUILD_TARGET: recovery
       TELEGRAM_CHAT_ID: ${{ inputs.notification_mode == 'quiet' && '-1002917930475' || '-1001480977582' }}
+      TZ: Europe/London
 
     steps:
 
