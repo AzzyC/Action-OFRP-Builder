@@ -54,6 +54,17 @@ jobs:
     - name: Cleanup
       uses: rokibhasansagar/slimhub_actions@main
 
+    # Setup SSH for GitLab
+    - name: Setup SSH Keys
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Add GitLab to known hosts
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+
     - name: Create Telegram sender script
       run: |
         cat <<'EOF' > /tmp/send_msg.sh
@@ -102,6 +113,26 @@ jobs:
         ./orangefox_sync.sh --branch ${{ env.MANIFEST_BRANCH }} --path ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ env.MANIFEST_BRANCH }}
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
+    - name: Replace bootable/recovery with Testing/Recovery
+      run: |
+        /tmp/send_msg.sh "🔁 Replacing bootable/recovery..."
+
+        cd ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ env.MANIFEST_BRANCH }}
+
+        rm -rf bootable/recovery
+
+        git clone --depth=1 -b fox_16.0-R12-wlan-test \
+          git@gitlab.com:OrangeFox/Testing/Recovery.git \
+          bootable/recovery
+
+        rm -rf vendor/recovery
+
+        git clone --depth=1 -b fox_16.0-R12 \
+          git@gitlab.com:OrangeFox/vendor/recovery.git \
+          vendor/recovery
+
+      working-directory: ${{ steps.pwd.outputs.workspace-folder }}
+
     - name: Get latest bootable/recovery commit
       id: recovery_commit
       run: |
@@ -109,7 +140,7 @@ jobs:
         RECOVERY_COMMIT=$(git rev-parse --short=7 HEAD)
         echo "RECOVERY_COMMIT=$RECOVERY_COMMIT" >> $GITHUB_OUTPUT
         echo "Latest bootable/recovery commit: $RECOVERY_COMMIT"
-        /tmp/send_msg.sh "🔁 bootable/recovery: [${RECOVERY_COMMIT}](https://gitlab.com/OrangeFox/bootable/Recovery/tree/${RECOVERY_COMMIT})"
+        /tmp/send_msg.sh "🔁 bootable/recovery: [${RECOVERY_COMMIT}](https://gitlab.com/OrangeFox/Testing/Recovery/tree/${RECOVERY_COMMIT})"
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
     - name: Clone device tree
@@ -193,7 +224,7 @@ jobs:
           Target: ${{ env.BUILD_TARGET }}
           Device tree branch: ${{ env.DEVICE_TREE_BRANCH }}
           Device tree commit: [${{ steps.devtree_commit.outputs.LATEST_COMMIT }}](${{ env.DEVICE_TREE_URL }}/tree/${{ steps.devtree_commit.outputs.LATEST_COMMIT }})
-          bootable/recovery commit: [${{ steps.recovery_commit.outputs.RECOVERY_COMMIT }}](https://gitlab.com/OrangeFox/bootable/Recovery/tree/${{ steps.recovery_commit.outputs.RECOVERY_COMMIT }})
+          bootable/recovery commit: [${{ steps.recovery_commit.outputs.RECOVERY_COMMIT }}](https://gitlab.com/OrangeFox/Testing/Recovery/tree/${{ steps.recovery_commit.outputs.RECOVERY_COMMIT }})
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -202,5 +233,5 @@ jobs:
       run: |
         RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/${{ github.run_id }}"
         DEVICE_TREE_BROWSE_URL="${{ env.DEVICE_TREE_URL }}/tree/${{ steps.devtree_commit.outputs.LATEST_COMMIT }}"
-        RECOVERY_BROWSE_URL="https://gitlab.com/OrangeFox/bootable/Recovery/tree/${{ steps.recovery_commit.outputs.RECOVERY_COMMIT }}"
+        RECOVERY_BROWSE_URL="https://gitlab.com/OrangeFox/Testing/Recovery/tree/${{ steps.recovery_commit.outputs.RECOVERY_COMMIT }}"
         /tmp/send_msg.sh "📦 *Build complete!*\n🔗 [Download]($RELEASE_URL)\n🌲 Device tree branch: \`${{ env.DEVICE_TREE_BRANCH }}\`\n🌲 Device tree commit: [${{ steps.devtree_commit.outputs.LATEST_COMMIT }}]($DEVICE_TREE_BROWSE_URL)\n🔁 bootable/recovery commit: [${{ steps.recovery_commit.outputs.RECOVERY_COMMIT }}]($RECOVERY_BROWSE_URL)"
