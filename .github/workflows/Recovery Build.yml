@@ -168,6 +168,7 @@ jobs:
         set +e
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
+        export FOX_BUILD_TYPE="Beta"
         set -e
 
         lunch ${{ env.MAKEFILE_NAME }}
