@@ -21,12 +21,12 @@ jobs:
 
     env:
       SYNC_URL: https://gitlab.com/OrangeFox/sync.git
-      MANIFEST_BRANCH: 14.1
+      MANIFEST_BRANCH: "16.0"
       DEVICE_TREE_URL: https://gitlab.com/OrangeFox/device/peridot_new
       DEVICE_TREE_BRANCH: fox_14.1
       DEVICE_PATH: device/xiaomi/peridot
       DEVICE_NAME: peridot
-      MAKEFILE_NAME: twrp_peridot-ap2a-eng
+      MAKEFILE_NAME: twrp_peridot-bp2a-eng
       BUILD_TARGET: recovery
       TELEGRAM_CHAT_ID: ${{ inputs.notification_mode == 'quiet' && '-1002917930475' || '-1001480977582' }}
       TZ: Europe/London
