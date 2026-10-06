@@ -104,6 +104,18 @@ jobs:
         ./orangefox_sync.sh --branch ${{ env.MANIFEST_BRANCH }} --path ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ env.MANIFEST_BRANCH }}
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
+    - name: Replace bootable/recovery
+      run: |
+        /tmp/send_msg.sh "🔁 Replacing bootable/recovery..."
+
+        cd ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ env.MANIFEST_BRANCH }}
+
+        rm -rf bootable/recovery
+
+        git clone --depth=1 -b fox_16.0_wifidev https://gitlab.com/OrangeFox/bootable/Recovery.git bootable/recovery
+
+      working-directory: ${{ steps.pwd.outputs.workspace-folder }}
+
     - name: Get latest bootable/recovery commit
       id: recovery_commit
       run: |
