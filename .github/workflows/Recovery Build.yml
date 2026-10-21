@@ -81,7 +81,7 @@ jobs:
     - name: Prepare the build environment
       run: |
         /tmp/send_msg.sh "🧩 Preparing build environment..."
-        curl -L -O "https://gitlab.com/OrangeFox/misc/scripts/-/raw/master/setup/android_build_env.sh"
+        curl -fL -O "https://gitlab.com/OrangeFox/misc/scripts/-/raw/master/setup/android_build_env.sh"
         sudo bash android_build_env.sh
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
