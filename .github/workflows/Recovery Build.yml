@@ -81,8 +81,6 @@ jobs:
     - name: Prepare the build environment
       run: |
         /tmp/send_msg.sh "🧩 Preparing build environment..."
-        DEBIAN_FRONTEND=noninteractive sudo apt install -yq \
-            git python3 tar aria2
         curl -L -O "https://gitlab.com/OrangeFox/misc/scripts/-/raw/master/setup/android_build_env.sh"
         sudo bash android_build_env.sh
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
