@@ -3,6 +3,16 @@ name: Recovery Build
 on:
   workflow_dispatch:
     inputs:
+
+      device_tree_branch:
+        description: "Select Device Tree branch"
+        required: true
+        default: "aera-16.0"
+        type: choice
+        options:
+          - "aera-16.0"
+          - auto-dfe
+
       notification_mode:
         description: "Select Telegram notification mode"
         required: true
@@ -23,7 +33,7 @@ jobs:
       SYNC_URL: https://github.com/AERA-Recovery/android_manifest.git
       MANIFEST_BRANCH: "aera-16.0"
       DEVICE_TREE_URL: https://github.com/AzzyC/android_device_xiaomi_peridot-AERA
-      DEVICE_TREE_BRANCH: "aera-16.0"
+      DEVICE_TREE_BRANCH: ${{ inputs.device_tree_branch }}
       DEVICE_PATH: device/xiaomi/peridot
       DEVICE_NAME: peridot
       MAKEFILE_NAME: twrp_peridot-bp2a-eng
