@@ -30,6 +30,12 @@ on:
           - None
           - Stable
 
+      maintainer_patch_version:
+        description: "Input maintainer patch version (for Stable build)"
+        required: false
+        type: string
+        default: ""
+
       notification_mode:
         description: "Select Telegram notification mode"
         required: true
@@ -164,9 +170,16 @@ jobs:
         export ALLOW_MISSING_DEPENDENCIES=true
 
         if [[ "${{ inputs.build_type }}" == "Stable" ]]; then
+          if [[ -z "${{ inputs.maintainer_patch_version }}" ]]; then
+            echo "::error::Stable builds require a maintainer patch version."
+            exit 1
+          fi
+
           export FOX_BUILD_TYPE="Stable"
+          export FOX_MAINTAINER_PATCH_VERSION="${{ inputs.maintainer_patch_version }}"
         else
           unset FOX_BUILD_TYPE
+          unset FOX_MAINTAINER_PATCH_VERSION
         fi
 
         set -e
