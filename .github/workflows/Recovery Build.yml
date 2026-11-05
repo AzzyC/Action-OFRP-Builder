@@ -21,6 +21,15 @@ on:
           - fox_14.1
           - auto-dfe
 
+      build_type:
+        description: "Select OrangeFox Build Type"
+        required: true
+        type: choice
+        default: None
+        options:
+          - None
+          - Stable
+
       notification_mode:
         description: "Select Telegram notification mode"
         required: true
@@ -153,6 +162,13 @@ jobs:
         set +e
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
+
+        if [[ "${{ inputs.build_type }}" == "Stable" ]]; then
+          export FOX_BUILD_TYPE="Stable"
+        else
+          unset FOX_BUILD_TYPE
+        fi
+
         set -e
 
         lunch ${{ env.MAKEFILE_NAME }}
