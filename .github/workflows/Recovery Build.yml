@@ -21,6 +21,23 @@ on:
           - fox_14.1
           - auto-dfe
 
+      build_type:
+        description: "Select OrangeFox Build Type"
+        required: true
+        type: choice
+        default: None
+        options:
+          - None
+          - Stable
+          - Beta
+          - Alpha
+
+      maintainer_patch_version:
+        description: "Input maintainer patch version (for Stable build)"
+        required: false
+        type: string
+        default: ""
+
       notification_mode:
         description: "Select Telegram notification mode"
         required: true
@@ -153,6 +170,22 @@ jobs:
         set +e
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
+
+        if [[ "${{ inputs.build_type }}" == "None" ]]; then
+          unset FOX_BUILD_TYPE
+        else
+          export FOX_BUILD_TYPE="${{ inputs.build_type }}"
+        fi
+
+        if [[ "${{ inputs.build_type }}" == "Stable" ]]; then
+          if [[ -z "${{ inputs.maintainer_patch_version }}" ]]; then
+            echo "::error::Stable builds require a maintainer patch version."
+            exit 1
+          fi
+
+          export FOX_MAINTAINER_PATCH_VERSION="${{ inputs.maintainer_patch_version }}"
+        fi
+
         set -e
 
         lunch ${{ env.MAKEFILE_NAME }}
