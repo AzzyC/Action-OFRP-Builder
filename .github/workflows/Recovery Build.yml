@@ -3,6 +3,15 @@ name: Recovery Build
 on:
   workflow_dispatch:
     inputs:
+      manifest_version:
+        description: "Select OrangeFox Manifest version"
+        required: true
+        type: choice
+        default: "16.0"
+        options:
+          - "14.1"
+          - "16.0"
+
       device_tree_url:
         description: "Select Device Tree repository"
         required: true
@@ -15,11 +24,12 @@ on:
       device_tree_branch:
         description: "Select Device Tree branch"
         required: true
-        default: fox_14.1
+        default: "fox_16.0"
         type: choice
         options:
-          - fox_14.1
-          - auto-dfe
+          - "fox_14.1"
+          - "auto-dfe"
+          - "fox_16.0"
 
       build_type:
         description: "Select OrangeFox Build Type"
@@ -56,12 +66,11 @@ jobs:
 
     env:
       SYNC_URL: https://gitlab.com/OrangeFox/sync.git
-      MANIFEST_BRANCH: 14.1
+      MANIFEST_BRANCH: ${{ inputs.manifest_version }}
       DEVICE_TREE_URL: ${{ inputs.device_tree_url }}
       DEVICE_TREE_BRANCH: ${{ inputs.device_tree_branch }}
       DEVICE_PATH: device/xiaomi/peridot
       DEVICE_NAME: peridot
-      MAKEFILE_NAME: twrp_peridot-ap2a-eng
       BUILD_TARGET: recovery
       TELEGRAM_CHAT_ID: ${{ inputs.notification_mode == 'quiet' && '-1002917930475' || '-1001480977582' }}
       TZ: Europe/London
@@ -188,7 +197,11 @@ jobs:
 
         set -e
 
-        lunch ${{ env.MAKEFILE_NAME }}
+        if [[ "${{ env.MANIFEST_BRANCH }}" == *"14.1"* ]]; then
+          lunch twrp_${{ env.DEVICE_NAME }}-ap2a-eng
+        elif [[ "${{ env.MANIFEST_BRANCH }}" == *"16.0"* ]]; then
+          lunch twrp_${{ env.DEVICE_NAME }}-bp2a-eng
+        fi
 
         if ! mka adbd ${{ env.BUILD_TARGET }}image -j$(nproc --all); then
           /tmp/send_msg.sh "❌ Build failed for \`${{ env.DEVICE_NAME }}\` (\`${{ env.DEVICE_TREE_BRANCH }}\`)\n🔗 [View Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
