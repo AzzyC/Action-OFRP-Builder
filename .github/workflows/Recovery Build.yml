@@ -202,10 +202,12 @@ jobs:
             echo "Compiler cache enabled: $CCACHE_EXEC"
           else
             echo "::warning::ccache initialization failed; continuing without cache."
+            exit 1
             unset USE_CCACHE CCACHE_EXEC
           fi
         else
           echo "::warning::ccache unavailable; continuing without cache."
+          exit 1
           unset USE_CCACHE CCACHE_EXEC
         fi
 
