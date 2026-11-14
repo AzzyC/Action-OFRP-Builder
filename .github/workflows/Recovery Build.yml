@@ -232,6 +232,19 @@ jobs:
           lunch twrp_${{ env.DEVICE_NAME }}-bp2a-eng
         fi
 
+        # Monitor disk and memory usage during compilation
+        (
+          while sleep 120; do
+            echo "=== Build resources: $(date -u '+%Y-%m-%d %H:%M:%S UTC') ==="
+            df -h /
+            free -h
+            vmstat 1 2
+          done
+        ) &
+        RESOURCE_MONITOR_PID=$!
+
+        trap 'kill "$RESOURCE_MONITOR_PID" 2>/dev/null || true' EXIT
+
         if ! mka adbd ${{ env.BUILD_TARGET }}image -j$(nproc --all); then
           /tmp/send_msg.sh "❌ Build failed for \`${{ env.DEVICE_NAME }}\` (\`${{ env.DEVICE_TREE_BRANCH }}\`)\n🔗 [View Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
           exit 1
