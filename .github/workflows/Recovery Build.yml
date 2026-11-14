@@ -74,6 +74,10 @@ jobs:
       BUILD_TARGET: recovery
       TELEGRAM_CHAT_ID: ${{ inputs.notification_mode == 'quiet' && '-1002917930475' || '-1001480977582' }}
       TZ: Europe/London
+      USE_CCACHE: "1"
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_MAXSIZE: 4G
+      CCACHE_COMPILERCHECK: content
 
     steps:
 
@@ -110,6 +114,14 @@ jobs:
         curl -fL -O "https://gitlab.com/OrangeFox/misc/scripts/-/raw/master/setup/android_build_env.sh"
         sudo bash android_build_env.sh
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
+
+    - name: Restore compiler cache
+      id: ccache_restore
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ env.CCACHE_DIR }}
+        key: ${{ env.MANIFEST_BRANCH }}-peridot-ccache
+      continue-on-error: true
 
     - name: Install OpenJDK
       uses: actions/setup-java@v6
@@ -180,6 +192,23 @@ jobs:
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
 
+        if command -v ccache >/dev/null 2>&1; then
+          export USE_CCACHE=1
+          export CCACHE_EXEC="$(command -v ccache)"
+
+          mkdir -p "$CCACHE_DIR"
+
+          if ccache -M "$CCACHE_MAXSIZE" && ccache -z; then
+            echo "Compiler cache enabled: $CCACHE_EXEC"
+          else
+            echo "::warning::ccache initialization failed; continuing without cache."
+            unset USE_CCACHE CCACHE_EXEC
+          fi
+        else
+          echo "::warning::ccache unavailable; continuing without cache."
+          unset USE_CCACHE CCACHE_EXEC
+        fi
+
         if [[ "${{ inputs.build_type }}" == "None" ]]; then
           unset FOX_BUILD_TYPE
         else
@@ -209,6 +238,17 @@ jobs:
         fi
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
+    - name: Show compiler cache statistics
+      run: |
+        if command -v ccache >/dev/null 2>&1; then
+          echo "=== Compiler cache statistics ==="
+          ccache_stats="$(ccache -s)"
+          echo "$ccache_stats"
+          /tmp/send_msg.sh "📊 *Compiler cache statistics*\n\`$ccache_stats\`"
+          echo "=== Compiler cache disk usage ==="
+          du -sh "$CCACHE_DIR" 2>/dev/null || true
+        fi
+
     - name: Show system resources post-build
       run: |
         /tmp/send_msg.sh "📊 Checking runner resources after build..."
@@ -221,6 +261,14 @@ jobs:
         echo "Disk:"
         df -h
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
+
+    - name: Save compiler cache
+      if: success() && steps.ccache_restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ env.CCACHE_DIR }}
+        key: ${{ env.MANIFEST_BRANCH }}-peridot-ccache
+      continue-on-error: true
 
     - name: Upload to Release
       uses: softprops/action-gh-release@v3
