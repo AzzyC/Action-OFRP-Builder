@@ -136,6 +136,27 @@ jobs:
         git clone --depth=1 ${{ env.SYNC_URL }}
         cd sync
         ./orangefox_sync.sh --branch ${{ env.MANIFEST_BRANCH }} --path ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ env.MANIFEST_BRANCH }}
+
+        cd "${{ steps.pwd.outputs.workspace-folder }}/fox_${{ env.MANIFEST_BRANCH }}"
+
+        echo "=== Source cache candidate ==="
+        du -sh .repo
+        du -sh .repo/project-objects .repo/projects 2>/dev/null || true
+
+        echo "=== Largest Git object repositories ==="
+        du -sh .repo/project-objects/* 2>/dev/null | sort -h | tail -n 20
+
+        echo "=== Largest individual Git object repositories ==="
+        find .repo/project-objects -type d -name '*.git' -prune -print0 |
+          xargs -0 -r du -sh |
+          sort -h |
+          tail -n 25
+
+        echo "=== Available disk ==="
+        df -h /
+
+        echo "::notice::Source sync diagnostic complete. Stopping before compilation."
+        exit 1
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
     - name: Get latest bootable/recovery commit
